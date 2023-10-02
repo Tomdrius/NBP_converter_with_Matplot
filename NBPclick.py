@@ -33,10 +33,10 @@ def validate_date(input_date_start:str, input_date_end:str) -> Tuple[str]:
 
 
     if date_parsed_start.year < 2002 and date_parsed_end.year < 2002:
-        raise ValueError("Invalid year. Please provide a year between 2002 and 2023.")
+        raise ValueError("Invalid year. Please provide a year after 2001.")
 
 
-    if date_parsed_start.date() > datetime.now().date() and date_parsed_end.date() > datetime.now().date():
+    if date_parsed_start.date() > datetime.now().date() or date_parsed_end.date() > datetime.now().date():
         raise ValueError("Invalid date. Please provide a date in the past.")
         
 
@@ -49,8 +49,7 @@ def get_exchange_rate(currency:str, date_start:str, date_end:str) -> Dict:
     if resp.status_code == 404:
         raise ValueError("No data. You probably chose a day off.")
 
-
-    if not resp.ok:
+    if not resp.ok: #How to test?
         raise ValueError("Unexpected server response")
 
     return resp.json()
@@ -58,8 +57,15 @@ def get_exchange_rate(currency:str, date_start:str, date_end:str) -> Dict:
 def extract_currency_rates(resp_js:Dict) -> List:
     try:    
         currency_rates = [item["mid"] for item in resp_js["rates"]]
+    
     except json.decoder.JSONDecodeError:
         raise ValueError("No data")
+    
+    except KeyError:
+        raise KeyError("Empty key")
+    
+    except TypeError:
+        raise TypeError("Invalid data")
 
     return currency_rates
 
@@ -73,7 +79,6 @@ def main(currency, date_start, date_end):
     date_start, date_end = validate_date(date_start, date_end)
     resp_js = get_exchange_rate(currency, date_start, date_end)
     currency_rates = extract_currency_rates(resp_js)
-    print(type(currency_rates))
     dates = [item["effectiveDate"] for item in resp_js["rates"]]
     for i, c in enumerate(currency_rates):
         print(f"1 {currency.upper()} = {c} PLN on the day {dates[i]}")
