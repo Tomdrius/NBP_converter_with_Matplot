@@ -69,12 +69,21 @@ def extract_currency_rates(resp_js:Dict) -> List:
 
     return currency_rates
 
+
 codes = check_currency_code_exists()
 @click.command()
-@click.option('--currency', '-c', default=DEFAULT_CURRENCY, prompt='Provide the currency', help='The currency code (3 letters)', type=click.Choice(codes, case_sensitive=False))
-@click.option('--date_start', '-s', default=(datetime.now()-timedelta(days=1)).strftime(DATA_FORMAT), prompt='Provide the start date', help='The date in YYYY-MM-DD format')
-@click.option('--date_end', '-e', default=datetime.now().strftime(DATA_FORMAT), prompt='Provide the end date', help='The date in YYYY-MM-DD format')
+@click.argument('currency', default=DEFAULT_CURRENCY, type=click.Choice(codes, case_sensitive=False))
+@click.argument('date_start', default=(datetime.now()-timedelta(days=1)).strftime(DATA_FORMAT))
+@click.argument('date_end', default=datetime.now().strftime(DATA_FORMAT))
 def main(currency, date_start, date_end):
+
+
+# codes = check_currency_code_exists()
+# @click.command()
+# @click.option('--currency', '-c', default=DEFAULT_CURRENCY, prompt='Provide the currency', help='The currency code (3 letters)', type=click.Choice(codes, case_sensitive=False))
+# @click.option('--date_start', '-s', default=(datetime.now()-timedelta(days=1)).strftime(DATA_FORMAT), prompt='Provide the start date', help='The date in YYYY-MM-DD format')
+# @click.option('--date_end', '-e', default=datetime.now().strftime(DATA_FORMAT), prompt='Provide the end date', help='The date in YYYY-MM-DD format')
+# def main(currency, date_start, date_end):
     # validate_currency(currency)
     date_start, date_end = validate_date(date_start, date_end)
     resp_js = get_exchange_rate(currency, date_start, date_end)

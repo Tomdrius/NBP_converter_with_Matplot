@@ -76,13 +76,27 @@ def test_wrong_format_date():
     assert "Invalid date format. Please provide the date in YYYY-MM-DD format." in str(e.value)
     assert e.type == ValueError
 
+
+@pytest.mark.parametrize("input_date_start, input_date_end, expected",
+                         [("2023-09-11", "2023-09-29", ("2023-09-11", "2023-09-29")),
+                          ("2023-02-11", "2023-09-30", ("2023-02-11", "2023-09-30")),
+                          ("2002-01-01", "2002-09-30", ("2002-01-01", "2002-09-30")),
+                          ("2012-02-29", "2012-09-29", ("2012-02-29", "2012-09-29")),
+                          ("2013-02-28", "2013-09-28", ("2013-02-28", "2013-09-28")),
+                          ("2022-12-24", "2022-12-31", ("2022-12-24", "2022-12-31")),
+                         ])
+def test_correct_date(input_date_start, input_date_end, expected):
+    got = validate_date(input_date_start, input_date_end)
+    assert got == expected
+
+
 def test_wrong_format_date_with_letters():
-    input_date_start = "adbasdf"
-    input_date_end = "2033-10-02"
+    input_date_start = "2033-10-02"
+    input_date_end = "adbasdf"
     with pytest.raises(ValueError) as e:
         validate_date(input_date_start, input_date_end)
     assert "Invalid date format. Please provide the date in YYYY-MM-DD format." in str(e.value)
-    assert e.type == ValueError
+    assert e.type == ValueError #rozmonożyć parametrise
 
 def test_correct_inputs():
     url = "http://api.nbp.pl/api/exchangerates/rates/a/gbp/2012-01-01/2012-01-31/?format=json"
@@ -98,11 +112,28 @@ def test_weekends_dates():
     assert "No data. You probably chose a day off." in str(e.value)
     assert e.type == ValueError
 
-def test_extract_currency_with_valid_data():
-    valid_resp = {"rates": [{"mid": 3.5}, {"mid": 4.0}]}
-    expected = [3.5, 4.0]
+
+@pytest.mark.parametrize("valid_resp, expected",[
+    ({"rates": [{"mid": 3.5}, {"mid": 4.0}]}, [3.5, 4.0])
+    ])
+def test_extract_currency_with_valid_data(valid_resp, expected):
+    # valid_resp = {"rates": [{"mid": 3.5}, {"mid": 4.0}]}
+    # expected = [3.5, 4.0]
     got = extract_currency_rates(valid_resp)
-    assert got == expected
+    assert got == expected #czyli romnożyć ten test
+
+# @pytest.mark.parametrize("year,month,day,expected",
+#                          [(1, 1, 1, 1),
+#                           (2000, 1, 1, 1),
+#                           (4, 3, 1, 61),
+#                           (3, 3, 1, 60),
+#                           (2021, 11, 30, 334),
+#                           (4, 12, 31, 366),
+#                           (3, 12, 31, 365),
+#                           ])
+# def test_day_of_year(year, month, day, expected):
+#     Date1 = date_interpreter.Date(year, month, day)
+#     assert Date1.day_of_year() == expected
 
 def test_extract_currency_with_empty_rates():
     empty_resp = {"rates": []}
