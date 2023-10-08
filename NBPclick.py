@@ -22,11 +22,11 @@ def check_currency_code_exists() -> List[str]:
         return codes
 
 
-def validate_date(input_date_start:str, input_date_end:str) -> Tuple[str]:
+def validate_date(date_start:str, date_end:str) -> Tuple[str]:
     try:
-        date_parsed_start = parser.parse(input_date_start)
+        date_parsed_start = parser.parse(date_start)
         date_start = date_parsed_start.strftime(DATA_FORMAT)
-        date_parsed_end = parser.parse(input_date_end)
+        date_parsed_end = parser.parse(date_end)
         date_end = date_parsed_end.strftime(DATA_FORMAT)
     except ValueError:
         raise ValueError("Invalid date format. Please provide the date in YYYY-MM-DD format.")
@@ -73,10 +73,9 @@ def extract_currency_rates(resp_js:Dict) -> List:
 codes = check_currency_code_exists()
 @click.command()
 @click.argument('currency', default=DEFAULT_CURRENCY, type=click.Choice(codes, case_sensitive=False))
-@click.argument('date_start', default=(datetime.now()-timedelta(days=1)).strftime(DATA_FORMAT))
+@click.argument('date_start', default=(datetime.now()-timedelta(days=3)).strftime(DATA_FORMAT))
 @click.argument('date_end', default=datetime.now().strftime(DATA_FORMAT))
 def main(currency, date_start, date_end):
-
 
 # codes = check_currency_code_exists()
 # @click.command()
@@ -84,7 +83,7 @@ def main(currency, date_start, date_end):
 # @click.option('--date_start', '-s', default=(datetime.now()-timedelta(days=1)).strftime(DATA_FORMAT), prompt='Provide the start date', help='The date in YYYY-MM-DD format')
 # @click.option('--date_end', '-e', default=datetime.now().strftime(DATA_FORMAT), prompt='Provide the end date', help='The date in YYYY-MM-DD format')
 # def main(currency, date_start, date_end):
-    # validate_currency(currency)
+    validate_currency(currency)
     date_start, date_end = validate_date(date_start, date_end)
     resp_js = get_exchange_rate(currency, date_start, date_end)
     currency_rates = extract_currency_rates(resp_js)
