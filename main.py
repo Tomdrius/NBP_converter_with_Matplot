@@ -83,7 +83,7 @@ def button_init(root, result_frame, entries):
 
     def on_button_click():
         currency = entries[0].get() if entries[0].get() else DEFAULT_CURRENCY
-        date_start = entries[1].get() if entries[1].get() else (datetime.now()-timedelta(days=6)).strftime(DATA_FORMAT)
+        date_start = entries[1].get() if entries[1].get() else (datetime.now()-timedelta(days=7)).strftime(DATA_FORMAT)
         date_end = entries[2].get() if entries[2].get() else datetime.now().strftime(DATA_FORMAT)
 
         try:

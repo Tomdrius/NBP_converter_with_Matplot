@@ -2,7 +2,6 @@ import tkinter as tk
 
 def window_initialization():
     root = tk.Tk()
-    # root.geometry("500x300")
     root.resizable(width=False, height=True)
     root.title('Currency exchanger')
     return root
@@ -17,7 +16,7 @@ def result_frame_inti(root):
     result_frame = tk.Frame(root, borderwidth=4)
     result_frame.grid(row=3, column=0)
     # result_frame.pack
-    result_frame.config(background='blue')
+    result_frame.config(background='#AFC2AD')
     return result_frame
 
 def entry_init(frame, label_text):
