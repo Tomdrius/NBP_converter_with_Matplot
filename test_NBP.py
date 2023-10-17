@@ -1,4 +1,4 @@
-from NBPtk import validate_currency, check_currency_code_exists, validate_date, get_exchange_rate, extract_currency_rates
+from main import validate_currency, check_currency_code_exists, validate_date, get_exchange_rate, extract_currency_rates
 import pytest, requests, json
 from datetime import datetime
 
