@@ -104,12 +104,11 @@ def button_init(root, result_frame, entries):
     button.config(background='green', foreground='white')
     return button, on_button_click
 
-# date = 11.10.2023
-codes = check_currency_code_exists()
 
 def main():
+    codes = check_currency_code_exists()
     root = window_initialization()
-    frame, entries = windows_init(root)
+    frame, entries = windows_init(root, codes)
     result_frame = result_frame_inti(root)
     clear_result_frame(result_frame)
     button, on_button_click = button_init(root, result_frame, entries)

@@ -1,4 +1,7 @@
 import tkinter as tk
+from typing import List
+from tkcalendar import DateEntry
+from datetime import datetime, timedelta
 
 def window_initialization():
     root = tk.Tk()
@@ -19,12 +22,23 @@ def result_frame_inti(root):
     result_frame.config(background='#AFC2AD')
     return result_frame
 
-def entry_init(frame, label_text):
+def entry_init_text(frame, label_text, options):
     label = tk.Label(frame, text=label_text, width=33, anchor=tk.W)
     label.grid(sticky=tk.W, row=len(frame.winfo_children()), column=0, padx=2, pady=2)
-    entry = tk.Entry(frame, width=20)
-    entry.grid(sticky=tk.W, row=len(frame.winfo_children()) - 1, column=1, padx=2, pady=2)
-    return label, entry
+    combo = tk.ttk.Combobox(frame, values=options, width=20)
+    combo.set('USD')
+    combo.grid(sticky=tk.W, row=len(frame.winfo_children()) - 1, column=1, padx=2, pady=2)
+    return label, combo
+
+
+def entry_init_date(frame, label_text):
+    label = tk.Label(frame, text=label_text, width=33, anchor=tk.W)
+    label.grid(sticky=tk.W, row=len(frame.winfo_children()), column=0, padx=2, pady=2)
+    date_picker = DateEntry(frame, width=20, background='darkblue', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
+    date_picker.set_date(datetime.now() - timedelta(days=1))
+    date_picker.grid(sticky=tk.W, row=len(frame.winfo_children()) - 1, column=1, padx=2, pady=2)
+    return label, date_picker
+
 
 def label_show_init(result_frame, entries):
     currency, date_start, date_end = entries
@@ -41,26 +55,27 @@ def clear_result_frame(result_frame):
     for widget in result_frame.winfo_children():
         widget.destroy()
 
-
-
-def windows_init(root):
+def windows_init(root, codes):
     frame = frame_init(root)
     entries = []
 
-    label, currency = entry_init(frame, 'Provide the currency (default: USD): ')
+    label, currency = entry_init_text(frame, 'Provide the currency (default: USD): ', codes)
     entries.append(currency)
 
-    label, date_start = entry_init(frame, 'Provide the start date (default: 7 days ago): ')
+    label, date_start = entry_init_date(frame, 'Provide the start date (default: 7 days ago): ')
     entries.append(date_start)
 
-    label, date_end = entry_init(frame, 'Provide the end date (default: today): ')
+    label, date_end = entry_init_date(frame, 'Provide the end date (default: today): ')
     entries.append(date_end)
 
     return frame, entries
 
+
 if __name__ == '__main__':
+    codes = ['THB', 'USD', 'AUD', 'HKD', 'CAD', 'NZD', 'SGD', 'EUR', 'HUF', 'CHF', 'GBP', 'UAH', 'JPY', 'CZK', 'DKK', 'ISK', 'NOK', 'SEK', 'RON', 'BGN', 'TRY', 'ILS', 'CLP', 'PHP', 'MXN', 'ZAR', 'BRL', 'MYR', 'IDR', 'INR', 'KRW', 'CNY', 'XDR']
+    print(codes)
     root = window_initialization()
-    frame, entries = windows_init(root)
+    frame, entries = windows_init(root, codes)
     result_frame = result_frame_inti(root)
     clear_result_frame(result_frame)
     button = button_init(root, result_frame, entries)
