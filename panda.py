@@ -1,7 +1,6 @@
 import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 
 def add_matplotlib_widget(master, get_x_func):
     fig = Figure(figsize=(10, 4), dpi=100)

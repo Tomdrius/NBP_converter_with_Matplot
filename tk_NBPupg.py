@@ -1,5 +1,4 @@
 import tkinter as tk
-from typing import List
 from tkcalendar import DateEntry
 from datetime import datetime, timedelta
 
@@ -22,27 +21,30 @@ def result_frame_inti(root):
     result_frame.config(background='#AFC2AD')
     return result_frame
 
-def entry_init_text(frame, label_text, options):
+def entry_init_text(frame, label_text, options, default_value):
     label = tk.Label(frame, text=label_text, width=33, anchor=tk.W)
     label.grid(sticky=tk.W, row=len(frame.winfo_children()), column=0, padx=2, pady=2)
     combo = tk.ttk.Combobox(frame, values=options, width=20)
-    combo.set('USD')
+    combo.set(default_value)
     combo.grid(sticky=tk.W, row=len(frame.winfo_children()) - 1, column=1, padx=2, pady=2)
     return label, combo
 
 
-def entry_init_date(frame, label_text):
+def entry_init_date(frame, label_text, is_first=False):
     label = tk.Label(frame, text=label_text, width=33, anchor=tk.W)
     label.grid(sticky=tk.W, row=len(frame.winfo_children()), column=0, padx=2, pady=2)
     date_picker = DateEntry(frame, width=20, background='darkblue', foreground='white', borderwidth=2, date_pattern='dd-mm-yyyy')
-    date_picker.set_date(datetime.now() - timedelta(days=1))
+    if is_first:
+        date_picker.set_date(datetime.now() - timedelta(days=7))
+    else:
+        date_picker.set_date(datetime.now())
     date_picker.grid(sticky=tk.W, row=len(frame.winfo_children()) - 1, column=1, padx=2, pady=2)
     return label, date_picker
 
 
 def label_show_init(result_frame, entries):
-    currency, date_start, date_end = entries
-    label = tk.Label(result_frame, text=f'Currency: {currency.get()}. Start Date: {date_start.get()}. End Date: {date_end.get()}', width=52, anchor=tk.W)
+    currency, currency2, date_start, date_end = entries
+    label = tk.Label(result_frame, text=f'Currency: {currency.get()}/{currency2.get()}. Start Date: {date_start.get()}. End Date: {date_end.get()}', width=52, anchor=tk.W)
     label.grid(sticky=tk.W, row=2, columnspan=2, padx=2, pady=2)
 
 def button_init(root, result_frame, entries):
@@ -59,21 +61,23 @@ def windows_init(root, codes):
     frame = frame_init(root)
     entries = []
 
-    label, currency = entry_init_text(frame, 'Provide the currency (default: USD): ', codes)
+    label, currency = entry_init_text(frame, 'Provide the currency (default: USD): ', codes, 'USD')
     entries.append(currency)
 
-    label, date_start = entry_init_date(frame, 'Provide the start date (default: 7 days ago): ')
+    label, currency = entry_init_text(frame, 'Provide the currency (default: PLN): ', codes, 'PLN')
+    entries.append(currency)
+
+    label, date_start = entry_init_date(frame, 'Provide the start date (default: 7 days ago): ', is_first=True)
     entries.append(date_start)
 
-    label, date_end = entry_init_date(frame, 'Provide the end date (default: today): ')
+    label, date_end = entry_init_date(frame, 'Provide the end date (default: yesterday): ')
     entries.append(date_end)
 
     return frame, entries
 
 
 if __name__ == '__main__':
-    codes = ['THB', 'USD', 'AUD', 'HKD', 'CAD', 'NZD', 'SGD', 'EUR', 'HUF', 'CHF', 'GBP', 'UAH', 'JPY', 'CZK', 'DKK', 'ISK', 'NOK', 'SEK', 'RON', 'BGN', 'TRY', 'ILS', 'CLP', 'PHP', 'MXN', 'ZAR', 'BRL', 'MYR', 'IDR', 'INR', 'KRW', 'CNY', 'XDR']
-    print(codes)
+    codes = ['PLN', 'THB', 'USD', 'AUD', 'HKD', 'CAD', 'NZD', 'SGD', 'EUR', 'HUF', 'CHF', 'GBP', 'UAH', 'JPY', 'CZK', 'DKK', 'ISK', 'NOK', 'SEK', 'RON', 'BGN', 'TRY', 'ILS', 'CLP', 'PHP', 'MXN', 'ZAR', 'BRL', 'MYR', 'IDR', 'INR', 'KRW', 'CNY', 'XDR']
     root = window_initialization()
     frame, entries = windows_init(root, codes)
     result_frame = result_frame_inti(root)

@@ -66,52 +66,80 @@ def extract_currency_rates(resp_js:Dict) -> List:
     
     except TypeError:
         raise TypeError("Invalid data")
-
+    
     return currency_rates
 
 
-def label_show_init(result_frame, currency_rates, currency, dates):
+def label_show_init(result_frame, currency_rates, currency, currency2, dates):
     clear_result_frame(result_frame)
     
     for i, c in enumerate(currency_rates):
-        result = f"1 {currency.upper()} = {c} PLN on the day {dates[i]}"
+        result = f"1 {currency.upper()} = {c} {currency2.upper()} on the day {dates[i]}"
         label = tk.Label(result_frame, text=result, width=52, anchor=tk.W)
         label.pack()
 
 
 def button_init(root, result_frame, entries):
 
-    def on_button_click():
+    def on_button_click() -> (List[datetime], List[float]):
         currency = entries[0].get() if entries[0].get() else DEFAULT_CURRENCY
-        date_start = entries[1].get() if entries[1].get() else (datetime.now()-timedelta(days=7)).strftime(DATA_FORMAT)
-        date_end = entries[2].get() if entries[2].get() else datetime.now().strftime(DATA_FORMAT)
+        currency2 = entries[1].get() if entries[0].get() else DEFAULT_CURRENCY
+        date_start = entries[2].get() if entries[1].get() else (datetime.now()-timedelta(days=7)).strftime(DATA_FORMAT)
+        date_end = entries[3].get() if entries[2].get() else datetime.now().strftime(DATA_FORMAT)
 
-        try:
+        if currency != 'PLN' and currency2 != 'PLN':
+            validate_currency(currency)
+            validate_currency(currency2)
+            date_start, date_end = validate_date(date_start, date_end)
+            resp_js = get_exchange_rate(currency, date_start, date_end)
+            resp_js2 = get_exchange_rate(currency2, date_start, date_end)
+            currency_rates1 = extract_currency_rates(resp_js)
+            currency_rates2 = extract_currency_rates(resp_js2)
+            currency_rates = [rate1 / rate2 for rate1, rate2 in zip(currency_rates1, currency_rates2)]
+            dates = [item["effectiveDate"] for item in resp_js["rates"]]
+            
+            label_show_init(result_frame, currency_rates, currency, currency2, dates)
+            return dates, currency_rates,
+
+        # except ValueError as e:
+        #     print(e)
+        elif currency2 == 'PLN':
+            currency2 = currency
             validate_currency(currency)
             date_start, date_end = validate_date(date_start, date_end)
             resp_js = get_exchange_rate(currency, date_start, date_end)
             currency_rates = extract_currency_rates(resp_js)
             dates = [item["effectiveDate"] for item in resp_js["rates"]]
             
-            label_show_init(result_frame, currency_rates, currency, dates)
+            label_show_init(result_frame, currency_rates, currency, 'PLN', dates)
             return dates, currency_rates,
 
-        except ValueError as e:
-            print(e)
+        else:
+            currency = currency2
+            validate_currency(currency)
+            date_start, date_end = validate_date(date_start, date_end)
+            resp_js = get_exchange_rate(currency, date_start, date_end)
+            currency_rates = extract_currency_rates(resp_js)
+            dates = [item["effectiveDate"] for item in resp_js["rates"]]
+            
+            label_show_init(result_frame, currency_rates, currency, 'PLN', dates)
+            return dates, currency_rates,
 
     button = tk.Button(root, text="Show", command=on_button_click)
     button.grid(row=1, column=0, padx=10, pady=10)
     button.config(background='green', foreground='white')
     return button, on_button_click
 
+codes = check_currency_code_exists()
+codes.insert(0, 'PLN')
 
 def main():
-    codes = check_currency_code_exists()
     root = window_initialization()
     frame, entries = windows_init(root, codes)
     result_frame = result_frame_inti(root)
     clear_result_frame(result_frame)
     button, on_button_click = button_init(root, result_frame, entries)
+    
     add_matplotlib_widget(root, on_button_click)
     root.mainloop()
 
