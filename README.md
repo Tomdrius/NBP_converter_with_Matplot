@@ -1,6 +1,7 @@
 # NBP Currency Exchange Rates
 
 This Python application allows you to fetch and display currency exchange rates from the National Bank of Poland (NBP).
+The script allows to select two currencies and a date range. It will retrieve and display the exchange rates for those currencies over the specified time period. It also has the capability to plot the data using Matplotlib.
 
 ## Table of Contents
 
