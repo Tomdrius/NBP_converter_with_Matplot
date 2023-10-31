@@ -78,6 +78,18 @@ def label_show_init(result_frame, currency_rates, currency, currency2, dates):
         label = tk.Label(result_frame, text=result, width=52, anchor=tk.W)
         label.pack()
 
+# def combo_change_handler(root, result_frame, entries):
+#     def handler(event):
+#         button_init(root, result_frame, entries)
+#     return handler
+
+def combo_change_handler(root, result_frame, entries):
+    def handler(event):
+        button, on_button_click = button_init(root, result_frame, entries)
+        on_button_click()  # This will trigger the button click event
+
+    return handler
+
 
 def button_init(root, result_frame, entries):
 
@@ -86,47 +98,34 @@ def button_init(root, result_frame, entries):
         currency2 = entries[1].get() if entries[0].get() else DEFAULT_CURRENCY
         date_start = entries[2].get() if entries[1].get() else (datetime.now()-timedelta(days=7)).strftime(DATA_FORMAT)
         date_end = entries[3].get() if entries[2].get() else datetime.now().strftime(DATA_FORMAT)
+        
+        validate_currency(currency)
+        validate_currency(currency2)
+        date_start, date_end = validate_date(date_start, date_end)
 
         if currency != 'PLN' and currency2 != 'PLN':
-            validate_currency(currency)
-            validate_currency(currency2)
-            date_start, date_end = validate_date(date_start, date_end)
             resp_js = get_exchange_rate(currency, date_start, date_end)
             resp_js2 = get_exchange_rate(currency2, date_start, date_end)
             currency_rates1 = extract_currency_rates(resp_js)
             currency_rates2 = extract_currency_rates(resp_js2)
             currency_rates = [rate1 / rate2 for rate1, rate2 in zip(currency_rates1, currency_rates2)]
-            dates = [item["effectiveDate"] for item in resp_js["rates"]]
-            
-            label_show_init(result_frame, currency_rates, currency, currency2, dates)
-            return dates, currency_rates,
 
-        # except ValueError as e:
-        #     print(e)
         elif currency2 == 'PLN':
-            currency2 = currency
-            validate_currency(currency)
-            date_start, date_end = validate_date(date_start, date_end)
             resp_js = get_exchange_rate(currency, date_start, date_end)
             currency_rates = extract_currency_rates(resp_js)
-            dates = [item["effectiveDate"] for item in resp_js["rates"]]
             
-            label_show_init(result_frame, currency_rates, currency, 'PLN', dates)
-            return dates, currency_rates,
-
         else:
-            currency = currency2
-            validate_currency(currency)
-            date_start, date_end = validate_date(date_start, date_end)
-            resp_js = get_exchange_rate(currency, date_start, date_end)
+            resp_js = get_exchange_rate(currency2, date_start, date_end)
             currency_rates = extract_currency_rates(resp_js)
-            dates = [item["effectiveDate"] for item in resp_js["rates"]]
-            
-            label_show_init(result_frame, currency_rates, currency, 'PLN', dates)
-            return dates, currency_rates,
+            currency_rates = [ 1/c for c in currency_rates]
+        
+        dates = [item["effectiveDate"] for item in resp_js["rates"]]
+        label_show_init(result_frame, currency_rates, currency, currency2, dates)
+        
+        return dates, currency_rates,
 
     button = tk.Button(root, text="Show", command=on_button_click)
-    button.grid(row=1, column=0, padx=10, pady=10)
+    button.grid(row=1, column=0, padx=(240, 10), pady=10)
     button.config(background='green', foreground='white')
     return button, on_button_click
 
@@ -135,10 +134,15 @@ codes.insert(0, 'PLN')
 
 def main():
     root = window_initialization()
-    frame, entries = windows_init(root, codes)
     result_frame = result_frame_inti(root)
+    frame, entries = windows_init(root, codes)
+    combo1 = entries[0]
+    combo2 = entries[1]
+    
     clear_result_frame(result_frame)
     button, on_button_click = button_init(root, result_frame, entries)
+    combo1.bind('<<ComboboxSelected>>', combo_change_handler(root, result_frame, entries))
+    combo2.bind('<<ComboboxSelected>>', combo_change_handler(root, result_frame, entries))
     
     add_matplotlib_widget(root, on_button_click)
     root.mainloop()

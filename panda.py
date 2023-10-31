@@ -42,4 +42,5 @@ def add_matplotlib_widget(master, get_x_func):
         canvas.draw()
 
     toggle_button = tk.Button(master, text="Show Canvas", command=toggle_canvas)
-    toggle_button.grid(row=0, column=1)
+    # toggle_button.grid(row=0, column=1)
+    toggle_button.grid(row=1, column=0, sticky="e", padx=(10, 20), pady=10)
