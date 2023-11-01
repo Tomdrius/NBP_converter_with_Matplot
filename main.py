@@ -3,7 +3,7 @@ import requests
 from dateutil import parser
 from datetime import datetime, timedelta
 import tkinter as tk
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Callable
 
 from tk_NBPupg import window_initialization, windows_init, result_frame_inti, clear_result_frame
 from panda import add_matplotlib_widget
@@ -70,7 +70,7 @@ def extract_currency_rates(resp_js:Dict) -> List:
     return currency_rates
 
 
-def label_show_init(result_frame, currency_rates, currency, currency2, dates):
+def label_show_init(result_frame: tk.Frame, currency_rates: List[float], currency: str, currency2: str, dates: List[str]) -> None:
     clear_result_frame(result_frame)
     
     for i, c in enumerate(currency_rates):
@@ -78,20 +78,15 @@ def label_show_init(result_frame, currency_rates, currency, currency2, dates):
         label = tk.Label(result_frame, text=result, width=52, anchor=tk.W)
         label.pack()
 
-# def combo_change_handler(root, result_frame, entries):
-#     def handler(event):
-#         button_init(root, result_frame, entries)
-#     return handler
-
-def combo_change_handler(root, result_frame, entries):
+def combo_change_handler(root: tk.Tk, result_frame: tk.Frame, entries: List[tk.Entry]) -> Callable[[tk.Event], any]:
     def handler(event):
         button, on_button_click = button_init(root, result_frame, entries)
-        on_button_click()  # This will trigger the button click event
+        on_button_click()
 
     return handler
 
 
-def button_init(root, result_frame, entries):
+def button_init(root: tk.Tk, result_frame, entries) -> Tuple[tk.Button, Callable[[], any]]:
 
     def on_button_click() -> (List[datetime], List[float]):
         currency = entries[0].get() if entries[0].get() else DEFAULT_CURRENCY
@@ -132,7 +127,7 @@ def button_init(root, result_frame, entries):
 codes = check_currency_code_exists()
 codes.insert(0, 'PLN')
 
-def main():
+def main() -> None:
     root = window_initialization()
     result_frame = result_frame_inti(root)
     frame, entries = windows_init(root, codes)
