@@ -124,6 +124,13 @@ def button_init(root: tk.Tk, result_frame, entries) -> Tuple[tk.Button, Callable
     button.config(background='green', foreground='white')
     return button, on_button_click
 
+def combo_change(root: tk.Tk, result_frame: tk.Frame, entries: List[tk.Entry]) -> None:
+    combo1 = entries[0]
+    combo2 = entries[1]
+    combo1.bind('<<ComboboxSelected>>', combo_change_handler(root, result_frame, entries))
+    combo2.bind('<<ComboboxSelected>>', combo_change_handler(root, result_frame, entries))
+
+
 codes = check_currency_code_exists()
 codes.insert(0, 'PLN')
 
@@ -131,14 +138,10 @@ def main() -> None:
     root = window_initialization()
     result_frame = result_frame_inti(root)
     frame, entries = windows_init(root, codes)
-    combo1 = entries[0]
-    combo2 = entries[1]
     
     clear_result_frame(result_frame)
     button, on_button_click = button_init(root, result_frame, entries)
-    combo1.bind('<<ComboboxSelected>>', combo_change_handler(root, result_frame, entries))
-    combo2.bind('<<ComboboxSelected>>', combo_change_handler(root, result_frame, entries))
-    
+    combo_change(root, result_frame, entries)
     add_matplotlib_widget(root, on_button_click)
     root.mainloop()
 
